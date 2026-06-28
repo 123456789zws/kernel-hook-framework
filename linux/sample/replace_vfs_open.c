@@ -5,8 +5,8 @@
 #include <linux/dcache.h>
 #include <linux/fsnotify.h>
 
-extern int do_dentry_open(struct file *f,
-			  int (*open)(struct inode *, struct file *));
+int (*do_dentry_open_fn)(struct file *f,
+			  int (*open)(struct inode *, struct file *)) = NULL;
 
 HOOK_FUNC_TEMPLATE(vfs_open);
 __nocfi int hook_vfs_open(const struct path *path, struct file *file)
@@ -14,8 +14,8 @@ __nocfi int hook_vfs_open(const struct path *path, struct file *file)
 	int ret;
 
 	printk(KERN_ALERT"in replaced vfs_open\n");
-	file->f_path = *path;
-	ret = do_dentry_open(file, NULL);
+	file->__f_path = *path;
+	ret = do_dentry_open_fn(file, NULL);
 	if (!ret) {
 		/*
 		 * Once we return a file with FMODE_OPENED, __fput() will call
@@ -34,7 +34,9 @@ int hook_vfs_open_init(void)
 	int ret = -EFAULT;
 
 	vfs_open_fn = (void *)find_func("vfs_open");
-	if (!vfs_open_fn)
+	do_dentry_open_fn = (void *)find_func("do_dentry_open");
+
+	if (!vfs_open_fn || !do_dentry_open_fn)
 		goto out;
 
 	if (HIJACK_TARGET_PREP_REPL(vfs_open_fn, vfs_open)) {

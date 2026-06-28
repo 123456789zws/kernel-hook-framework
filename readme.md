@@ -2,8 +2,10 @@
 
 ## News
 
-1) RISCV64 for linux/FreeBSD hook support
-2) Tested can work on 6.12.52-android16-6-maybe-dirty-4k kernel within cutterfish VM, and AOSP - KonstaKANG (Android 16) 6.12.77-g55b572d3ed0e-v8 kernel on raspberry pi4. 
+1) Kernel version 6.18+
+2) LoongArch64 for linux hook support
+3) RISCV64 for linux/FreeBSD hook support
+4) Tested can work on 6.12.52-android16-6-maybe-dirty-4k kernel within cutterfish VM, and AOSP - KonstaKANG (Android 16) 6.12.77-g55b572d3ed0e-v8 kernel on raspberry pi4. 
    
 ## Introduction ##
 
@@ -121,17 +123,12 @@ symbol_resolver.c). Previously only the EXPORT_SYMBOL symbols can be resolved in
 kernel modules, now all kallsyms symbols can be resolved. You can use kallsyms
 symbols just like EXPORT_SYMBOL symbols in hookFrameTest ko.
 
+NOTE: this feature only applies when "Symbol hack enabled!" string is outputted.
+
 ## Limits ##
 I have tested the code in fedora38(arm64 and x86_64). Since there is no redhat
-option in 32bit, so 32bit is not tested. In addition, please check if there is
-"simplify_symbols" in /proc/kallsyms. If yes, then the code can be built and
-run directly. If no, please pass HAS_NO_SIMPLIFY_SYMBOLS=1 to make when built:
-
-```
-make <TARGET> HAS_NO_SIMPLIFY_SYMBOLS=1 <KDIR=> ...
-```
-
-Currently it support arm32, arm64, x86 and x86_64.
+option in 32bit, so 32bit is not tested. Currently it support arm32, arm64, x86,
+x86_64, riscv64, loongarch64.
 
 In addition, in order to make hook framework work properly, target kernel's configuration CONFIG_KALLSYMS and CONFIG_KPROBES is a must.
 

@@ -33,16 +33,12 @@ static int __init hook_framework_init(void)
         goto out;
     }
     ret = init_simplify_symbols_hook();
-    if (ret) {
-        goto clean_proc;
-    }
-    printk(KERN_ALERT"load hook framework success!\n");
-    return ret;
+    printk(KERN_ALERT"Symbol hack %s\n", ret ? "disabled" : "enabled");
+    printk(KERN_ALERT"Load hook framework success!\n");
+    return 0;
 
-clean_proc:
-    remove_proc_interface();
 out:
-    printk(KERN_ALERT"load hook framework fail!\n");
+    printk(KERN_ALERT"Load hook framework fail!\n");
     return ret;
 }
 

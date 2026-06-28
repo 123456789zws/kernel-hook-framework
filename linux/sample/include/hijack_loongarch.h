@@ -1,0 +1,1 @@
+../../src/arch/loongarch/hijack_loongarch.h

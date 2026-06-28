@@ -19,8 +19,9 @@ default:
 	@echo "x86	Linux, X86"
 	@echo "powerpc	Linux, PPC64LE"
 	@echo "riscv	Linux, RISCV64"
+	@echo "loongarch Linux, LOONGARCH64"
 
-arm64 arm x86 x86_64 powerpc riscv:
+arm64 arm x86 x86_64 powerpc riscv loongarch:
 ifndef KDIR
 	@echo "Must provide KDIR!"
 	@exit 1

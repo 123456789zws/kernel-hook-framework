@@ -6,6 +6,7 @@
 *.til
 *.txt
 *.d
+*.mod
 .tmp_versions
 modules.order
 Module.symvers

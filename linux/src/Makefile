@@ -4,12 +4,7 @@ obj-m += hookFrame.o
 hookFrame-y += framework/module.o
 hookFrame-y += framework/hijack_operation.o
 hookFrame-y += framework/stack_safety_check.o
-
-ifeq ($(HAS_NO_SIMPLIFY_SYMBOLS),1)
-hookFrame-y += framework/symbol_resolver_bak.o
-else
 hookFrame-y += framework/symbol_resolver.o
-endif
 
 hookFrame-y += framework/write_map_page.o
 hookFrame-y += framework/proc_interface.o
@@ -29,8 +24,9 @@ default:
 	@echo "x86	Linux, X86"
 	@echo "powerpc	Linux, PPC64LE"
 	@echo "riscv	Linux, RISCV64"
+	@echo "loongarch Linux, LOONGARCH64"
 
-arm64 arm x86 x86_64 powerpc riscv:
+arm64 arm x86 x86_64 powerpc riscv loongarch:
 ifndef KDIR
 	@echo "Must provide KDIR!"
 	@exit 1

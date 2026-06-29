@@ -104,11 +104,12 @@ int hijack_target_prepare (void *target, void *hook_dest,
 
     target += HOOK_TARGET_OFFSET;
     ptr_hash = jhash_pointer(target);
+    sprint_symbol_no_offset(name_buf, (unsigned long)target);
 
     /*first, target function should longer than HIJACK_SIZE*/
     if (!check_function_length_enough(target)) {
-        printk(KERN_ALERT"%lx short than hijack_size %d, cannot hijack...\n",
-			(unsigned long)target, HIJACK_SIZE);
+        printk(KERN_ALERT"%s short than hijack_size %d, cannot hijack...\n",
+			name_buf, HIJACK_SIZE);
         ret = -1;
         goto out;
     }
@@ -116,8 +117,8 @@ int hijack_target_prepare (void *target, void *hook_dest,
     /*second, not contain unhookable instructions*/
     if (hook_template_code_space && !check_target_can_hijack(target)) {
 	hook_template_code_space += CODE_SPACE_OFFSET;
-        printk(KERN_ALERT"%lx contains instruction which cannot hijack...\n",
-			(unsigned long)target);
+        printk(KERN_ALERT"%s contains instruction which cannot hijack...\n",
+			name_buf);
         ret = -1;
         goto out;
     }
@@ -127,7 +128,7 @@ int hijack_target_prepare (void *target, void *hook_dest,
     hash_for_each_possible(all_hijack_targets, sa, node, ptr_hash) {
         if (target == sa->target) {
             up_read(&hijack_targets_hashtable_lock);
-            printk(KERN_ALERT"%lx has been prepared, skip...\n", (unsigned long)target);
+            printk(KERN_ALERT"%s has been prepared, skip...\n", name_buf);
             ret = -1;
             goto out;
         }
@@ -138,7 +139,7 @@ int hijack_target_prepare (void *target, void *hook_dest,
     sa = kmalloc(sizeof(*sa), GFP_KERNEL);
     name = kstrdup(mod_name, GFP_KERNEL);
     if (!sa || !name) {
-        printk(KERN_ALERT"No enough memory to hijack %lx\n", (unsigned long)target);
+        printk(KERN_ALERT"No enough memory to hijack %s\n", name_buf);
         ret = -1;
         goto out;
     }
@@ -223,13 +224,15 @@ int hijack_target_enable(void *target)
                     sa->enabled = true;
                 }
             } else {
-                printk(KERN_ALERT"%lx has been hijacked, skip...\n", (unsigned long)(sa->target));
+                sprint_symbol_no_offset(name_buf, (unsigned long)(sa->target));
+                printk(KERN_ALERT"%s has been hijacked, skip...\n", name_buf);
                 ret = 0;
             }
             goto out;
         }
     }
-    printk(KERN_ALERT"%lx not been prepared, skip...\n", (unsigned long)target);
+    sprint_symbol_no_offset(name_buf, (unsigned long)target);
+    printk(KERN_ALERT"%s not been prepared, skip...\n", name_buf);
 out:
     up_write(&hijack_targets_hashtable_lock);
 
@@ -282,7 +285,8 @@ int hijack_target_disable(void *target, bool need_remove)
 			goto out;
 		}
 	}
-	printk(KERN_ALERT"%lx not been prepared, skip...\n", (unsigned long)target);
+	sprint_symbol_no_offset(name_buf, (unsigned long)target);
+	printk(KERN_ALERT"%s not been prepared, skip...\n", name_buf);
 out:
 	up_write(&hijack_targets_hashtable_lock);
 

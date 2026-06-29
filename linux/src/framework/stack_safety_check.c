@@ -58,13 +58,13 @@ __nocfi int stack_activeness_safety_check(unsigned long addr, unsigned long hook
 		for (i = 0; i < nr_entries; i++) {
 			if (check_stack_address_in_hijack_area(addr, entries[i])) {
 				printk(KERN_ALERT"Have to Wait! PID: %d Comm: %.20s\n", t->pid, t->comm);
-				printk(KERN_ALERT"  [<%lx>] %pB\n", entries[i], (void *)entries[i]);
+				printk(KERN_ALERT"  [<%pK>] %pB\n", (void *)entries[i], (void *)entries[i]);
 				ret = -2; // Don't modify hijack and wait for retry
 				goto out;
 			}
 			if (check_stack_address_in_hook_function(hook_func, entries[i])) {
 				printk(KERN_ALERT"Try Wait or KILL! PID: %d Comm: %.20s\n", t->pid, t->comm);
-				printk(KERN_ALERT"  [<%lx>] %pB\n", entries[i], (void *)entries[i]);
+				printk(KERN_ALERT"  [<%pK>] %pB\n", (void *)entries[i], (void *)entries[i]);
 				ret = -1; // Can modify hijack and wait for retry
 			}
 		}

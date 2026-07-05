@@ -7,7 +7,7 @@ extern int init_kallsyms_lookup_func(void);
 extern int init_simplify_symbols_hook(void);
 extern void init_stack_safety_check(void);
 extern int init_hijack_operation(void);
-extern int init_write_map_page(void);
+extern int init_arch(void);
 extern int init_proc_interface(void);
 extern void remove_proc_interface(void);
 extern void hijack_target_disable_all(bool, char *);
@@ -18,8 +18,8 @@ static int __init hook_framework_init(void)
     ret = init_kallsyms_lookup_func();
     if (ret) {
         goto out;
-    }  
-    ret = init_write_map_page();
+    }
+    ret = init_arch();
     if (ret) {
         goto out;
     }

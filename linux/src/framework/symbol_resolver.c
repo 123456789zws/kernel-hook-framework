@@ -74,9 +74,9 @@ static const struct kernel_symbol *(*resolve_symbol_ptr)(struct module *,
 						  const char *,
 						  char []) = NULL;
 static struct wait_queue_head *module_wq_ptr = NULL;
-static unsigned long (*kallsyms_lookup_name_ptr)(const char *) = NULL;
+unsigned long (*kallsyms_lookup_name_ptr)(const char *) = NULL;
 
-__nocfi void *find_func(const char *name)
+__nocfi void __weak *find_func(const char *name)
 {
 	void *ret = NULL;
 	ret = (void *)kallsyms_lookup_name_ptr(name);

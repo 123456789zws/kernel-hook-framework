@@ -10,9 +10,8 @@
 #include "include/common_data.h"
 
 int (*insn_decode_ptr)(struct insn *, const void *, int, enum insn_mode) = NULL;
-
-extern int (*core_kernel_text_ptr)(unsigned long);
-extern bool (*is_module_text_address_ptr)(unsigned long);
+int (*core_kernel_text_ptr)(unsigned long) = NULL;
+bool (*is_module_text_address_ptr)(unsigned long) = NULL;
 
 __nocfi int disass_target(void *target)
 {
@@ -116,5 +115,10 @@ int hook_write_range(void *target, void *source, int size)
 
 int init_arch(void) {
 	insn_decode_ptr = (void *)find_func("insn_decode");
-	return !insn_decode_ptr;
+	core_kernel_text_ptr = (void *)find_func("core_kernel_text");
+	is_module_text_address_ptr = (void *)find_func("is_module_text_address");
+	if (insn_decode_ptr && core_kernel_text_ptr && is_module_text_address_ptr)
+		return 0;
+	else
+		return 1;
 }

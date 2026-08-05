@@ -2,8 +2,11 @@
 
 ## News
 
-1) PowerPC(ppc64le) hook support
-
+1) Kernel version 6.18+
+2) LoongArch64 for linux hook support
+3) RISCV64 for linux/FreeBSD hook support
+4) Tested can work on 6.12.52-android16-6-maybe-dirty-4k kernel within cutterfish VM, and AOSP - KonstaKANG (Android 16) 6.12.77-g55b572d3ed0e-v8 kernel on raspberry pi4. 
+   
 ## Introduction ##
 
 Usually we want to hack a kernel function, 
@@ -20,9 +23,9 @@ How can we manage that? Well it's time to bring inline hook technique to kernel 
 
 There will be 2 kernel modules:
 
-1) src/: The hook framework itself. In normal cases, you needn't modify its code, unless you are trying to fix bug, because we want to keep it as simple and independent to any customization. After compile, you will get hookFrame.ko.
+1) linux/src/: The hook framework itself. In normal cases, you needn't modify its code, unless you are trying to fix bug, because we want to keep it as simple and independent to any customization. After compile, you will get hookFrame.ko.
 
-2) sample/: The customized hook/replacement functions. Write your code here, and you can take hook_vfs_read.c, replace_vfs_open.c as reference when writing your own function. Also in module.c, you can  get a general view of how to register your function to hook framework. After compile, hookFrameTest.ko will be generated.
+2) linux/sample/: The customized hook/replacement functions. Write your code here, and you can take hook_vfs_read.c, replace_vfs_open.c as reference when writing your own function. Also in module.c, you can  get a general view of how to register your function to hook framework. After compile, hookFrameTest.ko will be generated.
 
 Sometimes you will find the vermagic of hookFrame.ko and hookFrameTest.ko different from your target kernel. You can pass the target kernel's vermagic string to make:
 
@@ -120,34 +123,39 @@ symbol_resolver.c). Previously only the EXPORT_SYMBOL symbols can be resolved in
 kernel modules, now all kallsyms symbols can be resolved. You can use kallsyms
 symbols just like EXPORT_SYMBOL symbols in hookFrameTest ko.
 
+NOTE: this feature only applies when "Symbol hack enabled!" string is outputted.
+
 ## Limits ##
 I have tested the code in fedora38(arm64 and x86_64). Since there is no redhat
-option in 32bit, so 32bit is not tested. In addition, please check if there is
-"simplify_symbols" in /proc/kallsyms. If yes, then the code can be built and
-run directly. If no, please apply the following change then built:
-
-```
-diff --git a/src/Makefile b/src/Makefile
-index 7bbfe26..9ee06d7 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -3,7 +3,7 @@ obj-m += hookFrame.o
- hookFrame-y += framework/module.o
- hookFrame-y += framework/hijack_operation.o
- hookFrame-y += framework/stack_safety_check.o
--hookFrame-y += framework/symbol_resolver.o
-+hookFrame-y += framework/symbol_resolver_bak.o
- hookFrame-y += framework/write_map_page.o
- hookFrame-y += framework/proc_interface.o
- hookFrame-y += arch/$(ARCH)/hijack_$(ARCH).o
-```
-
-Currently it support arm32, arm64, x86 and x86_64.
+option in 32bit, so 32bit is not tested. Currently it support arm32, arm64, x86,
+x86_64, riscv64, loongarch64.
 
 In addition, in order to make hook framework work properly, target kernel's configuration CONFIG_KALLSYMS and CONFIG_KPROBES is a must.
 
 ## Bugs ##
 Please report any bugs to me: liutgnu@gmail.com, also any contributions are welcomed. Happy hacking!!!
 
-## Demo ##
+## Demo for Linux ##
 ![demo](demo.gif)
+
+## Demo for Android ##
+https://github.com/user-attachments/assets/d7c4dda6-f143-4786-a296-a0e27c61a8be
+
+## Hook Mechanism(arm64 as example) ##
+Function unhooked:
+<img width="980" height="552" alt="1" src="https://github.com/user-attachments/assets/ba93b2d2-6404-4663-ad51-0a73a1724cff" />
+Function been hooked and replaced:
+<img width="982" height="554" alt="2" src="https://github.com/user-attachments/assets/b2489382-4070-453e-82f1-f2ec24c02657" />
+Function been hooked and able to resume:
+<img width="981" height="553" alt="3" src="https://github.com/user-attachments/assets/168ff3d7-9f29-408b-acbc-a77ceb1ea3e3" />
+
+## Coffee ##
+
+A cup of coffee can make me code faster.
+
+<table>
+  <tr>
+    <td><img width="256" src="WeChatPay.jpg" /></td>
+    <td><a href="https://paypal.me/liutgnu"><img width="256" src="https://www.paypalobjects.com/digitalassets/c/website/logo/full-text/pp_fc_hl.svg" /><p align="center">Coffee me on PayPal</p></a></td>
+  </tr>
+</table>
